@@ -1,0 +1,101 @@
+import pygame
+from pygame.draw import *
+import math as m
+
+pygame.init()
+
+FPS = 30
+screen = pygame.display.set_mode((800, 532))
+grey = [210,210,210]
+color = [254,214,149]
+screen.fill(color)
+
+
+#background
+polygon(screen, (180, 135, 149), [(0,362), (800,346),(800,532), (0,532)], 0)
+polygon(screen, (254, 214, 197), [(0,115), (800,115),(800,230), (0,230)], 0)
+circle(screen, (252, 238, 27), (540, 120), 50) # the sun
+
+# hill 1
+u_hill_x = 0
+u_hill_xy = [0]*801
+while u_hill_x < 10:
+    y = -u_hill_x*3 + 250
+    u_hill_xy[u_hill_x] = (u_hill_x,y)
+    u_hill_x += 1
+while u_hill_x < 165:
+    y = -((u_hill_x-10)**2)/200 + 220
+    u_hill_xy[u_hill_x] = (u_hill_x,y)
+    u_hill_x += 1
+while u_hill_x < 195:
+    y = (u_hill_x-165)*0.4 + 101
+    u_hill_xy[u_hill_x] = (u_hill_x,y)
+    u_hill_x += 1
+while u_hill_x < 215:
+    y = (u_hill_x-195)*1.2 + 113
+    u_hill_xy[u_hill_x] = (u_hill_x,y)
+    u_hill_x += 1
+while u_hill_x < 501:
+   y = -((u_hill_x-350)**2/200 - 228)
+   u_hill_xy[u_hill_x] = (u_hill_x,y)
+   u_hill_x += 1
+while u_hill_x < 521:
+    y = (u_hill_x-165)*0.1 + 81
+    u_hill_xy[u_hill_x] = (u_hill_x,y)
+    u_hill_x += 1
+while u_hill_x < 800:
+   y = -((u_hill_x-700)**2/200 - 280)
+   u_hill_xy[u_hill_x] = (u_hill_x,y)
+   u_hill_x += 1
+u_hill_xy[800] = (800,300)
+polygon(screen, (252, 153, 45), (u_hill_xy), 0)
+
+# hill 2
+sin_x = 1
+sin_xy = [0]*801
+sin_xy[0] = (0,360)
+while sin_x < 800:
+    y = 20*m.sin(0.1*sin_x) - 0.05*sin_x + 300
+    sin_xy[sin_x] = (sin_x,y)
+    sin_x += 1
+sin_xy[800] = (801,330)
+polygon(screen, (173, 65, 49), (sin_xy), 0)
+
+# bird:
+# step to create a bird
+def elipse (height, width, corx, cory,turn):
+    i = corx - width # left elipse border
+    p = corx - width # right elipse border
+    ellipse1 = [0]*(2*width+1) 
+    ellipse2 = [0]*(2*width+1)
+    # making a half of an elipse
+    while i <= corx + width: 
+        y1 = height*((1 - ((i - corx)/width)**2)**0.5) + cory
+        gamma = m.acos((i - corx)/((i - corx)**2 + (y1-cory)**2)**0.5) # angle between section Oi and horison, O - center of elipse
+        i_t = ((i-corx)**2 + (y1-cory)**2)**0.5*m.cos(gamma - turn*m.pi/180) # new X coordinate (arter rotation)
+        y1_t = ((i-corx)**2 + (y1-cory)**2)**0.5*m.sin(gamma - turn*m.pi/180) # new Y coordinate (arter rotation)
+        ellipse1[i-p] = (i_t + corx, y1_t + cory) # upper part of elipse
+        ellipse2[i-p] = (-i_t + corx, -y1_t + cory) # lower part of elipse
+        i+=1
+    polygon(screen, (64, 27, 3), (ellipse1), 0)
+    polygon(screen, (64, 27, 3), (ellipse2), 0)
+# making bird using two elipse
+def bird (corx, cory): 
+    elipse(10, 40, corx, cory, 45)
+    elipse(15, 40, corx - 50, cory, -45)
+
+bird(400,90)
+bird(300,180)
+bird(100,400)
+
+pygame.display.update()
+clock = pygame.time.Clock()
+finished = False
+
+while not finished:
+    clock.tick(FPS)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            finished = True
+
+pygame.quit()
